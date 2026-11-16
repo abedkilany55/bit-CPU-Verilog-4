@@ -1,0 +1,82 @@
+module data_memory_tb;
+
+    reg clk;
+    reg mem_read;
+    reg mem_write;
+    reg [3:0] address;
+    reg [3:0] write_data;
+    wire [3:0] read_data;
+
+    data_memory dut (
+        .clk(clk),
+        .mem_read(mem_read),
+        .mem_write(mem_write),
+        .address(address),
+        .write_data(write_data),
+        .read_data(read_data)
+    );
+
+    always #5 clk = ~clk;
+
+    initial begin
+        clk = 0;
+        mem_read = 0;
+        mem_write = 0;
+        address = 0;
+        write_data = 0;
+
+        // ???? 1010 ?? ??????? 3
+        @(negedge clk);
+        address = 4'd3;
+        write_data = 4'b1010;
+        mem_write = 1;
+
+        @(posedge clk);
+        #1 mem_write = 0;
+
+        // ???? ??????? 3
+        mem_read = 1;
+        #1;
+        if (read_data !== 4'b1010)
+            $display("FAIL: address 3, read_data=%b", read_data);
+        else
+            $display("PASS: address 3, read_data=%b", read_data);
+
+        // ??? ??????? ?????? ???? ????? ???? ???
+        mem_read = 0;
+        #1;
+        if (read_data !== 4'b0000)
+            $display("FAIL: read disabled, read_data=%b", read_data);
+        else
+            $display("PASS: read disabled, read_data=%b", read_data);
+
+        // ???? 0110 ?? ??????? 5
+        @(negedge clk);
+        address = 4'd5;
+        write_data = 4'b0110;
+        mem_write = 1;
+
+        @(posedge clk);
+        #1 mem_write = 0;
+
+        // ???? ??????? 5
+        mem_read = 1;
+        #1;
+        if (read_data !== 4'b0110)
+            $display("FAIL: address 5, read_data=%b", read_data);
+        else
+            $display("PASS: address 5, read_data=%b", read_data);
+
+        // ???? ?? ???? ??????? 3 ?? ??????
+        address = 4'd3;
+        #1;
+        if (read_data !== 4'b1010)
+            $display("FAIL: address 3 changed, read_data=%b", read_data);
+        else
+            $display("PASS: address 3 still contains %b", read_data);
+
+        $display("Data Memory test finished.");
+        $finish;
+    end
+
+endmodule

@@ -1,0 +1,45 @@
+module instruction_memory_tb;
+
+    reg  [3:0] address;
+    wire [11:0] instruction;
+    reg  [11:0] expected;
+    integer i;
+
+    instruction_memory dut (
+        .address(address),
+        .instruction(instruction)
+    );
+
+    initial begin
+        for (i = 0; i < 16; i = i + 1) begin
+
+            // ???? ???????? ???????? ???? ???????
+            case (i)
+                0: expected = 12'b0100_01_0101_00;
+                1: expected = 12'b0100_10_0011_00;
+                2: expected = 12'b0000_11_01_10_00;
+                3: expected = 12'b0011_11_0100_00;
+                default: expected = 12'b1111_0000_0000;
+            endcase
+
+            // ??? ??????? ?????? ?????? ??? ???? ????????
+            address = i;
+            #1;
+
+            // ????? ?????? ?????? ????????? ????????
+            if (instruction !== expected) begin
+                $display("FAIL: address=%0d expected=%b actual=%b",
+                         i, expected, instruction);
+                $finish;
+            end
+            else begin
+                $display("PASS: address=%0d instruction=%b",
+                         i, instruction);
+            end
+        end
+
+        $display("PASS: ??? ?? ?????? Instruction Memory ???");
+        $finish;
+    end
+
+endmodule
